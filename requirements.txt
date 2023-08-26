@@ -1,7 +1,7 @@
 # This file may be used to create an environment using:
 # $ conda create --name <env> --file <this file>
 # platform: win-64
-beautifulsoup4=4.11.1
+beautifulsoup4
 dash=2.7.0
 lxml=4.9.2
 numpy=1.25.2
