@@ -6,4 +6,5 @@ dash
 lxml
 numpy
 pandas
+gunicorn
 
