@@ -4,24 +4,24 @@ import pandas as pd
 from urllib.request import urlopen
 from bs4 import BeautifulSoup
 import pandas as pd
+from pandas.api.types import is_object_dtype
 from dateutil.parser import parse
 import numpy as np
 
 
 
 app = Dash(__name__)
-server = app.server
 
 app.layout = html.Div([
     html.Div([
-    html.H1(children='Title of Dash App', style={'textAlign':'center'}),
+    html.H1(children='Soccer Schedule', style={'textAlign':'center'}),
     html.H2(children='Paste in Schedule URL:', style={'textAlign':'left'}),
     dcc.Textarea(
         id='textarea-url',
         value='',
         style={'width': '25%', 'height': 50},
     ),
-    html.H2(children='Type Team Name as it Appears in Schedule:', style={'textAlign':'left'}),
+    html.H2(children='Type/Paste Team Name as it Appears in Schedule:', style={'textAlign':'left'}),
     dcc.Textarea(
         id='textarea-team-name',
         value='',
@@ -46,8 +46,11 @@ app.layout = html.Div([
         style={'width': '25%', 'height': 50},
     ),
 ]),
+    html.Br(),
     html.Div([
-    html.Button('Submit', id='generate-schedule-button', n_clicks=0, style={'left' : 0}),
+    html.Button('Get Schedule Data', id='generate-schedule-button', n_clicks=0, style={'left' : 0}),
+    html.Br(),
+    html.Br(),
     dash_table.DataTable(
           id="table_infos",
           columns=[{'id': "Date", 'name': "Date"}, {'id': "Name", 'name': "Name"}, {'id': "Time", 'name': "Time"}, 
@@ -83,6 +86,7 @@ def f7(seq):
     seen_add = seen.add
     return [x for x in seq if not (x in seen or seen_add(x))]
 
+
 @callback(
     Output('table_infos', 'data'),
     Input('generate-schedule-button', 'n_clicks'),
@@ -94,6 +98,10 @@ def f7(seq):
 )
 
 def update_output(n_clicks, value, value1, value2, value3, value4):
+    value = value.lstrip()
+    value1 = value1.lstrip()
+    value2 = value2.lstrip()
+    value3 = value3.lstrip()
     
     if n_clicks > 0:
         page = urlopen(value)
@@ -121,6 +129,9 @@ def update_output(n_clicks, value, value1, value2, value3, value4):
 
         df = pd.concat(keep_list)
         df['Date'] = pd.to_datetime(df['Date']).dt.strftime('%m/%d/%Y')
+        df['Time'] = df['Time'].replace(to_replace=r'(AM|PM)', value=r' \1', regex=True)
+        df['Time'] = df['Time'].str.split('M').str[0] + 'M'
+
         df = df[(df['Home Team']==value1) | (df['Away Team']==value1)]
         df['Home or Away'] = np.where(df['Home Team']==value1, 'Home', 'Away')
         df['Name'] = value1
@@ -128,12 +139,9 @@ def update_output(n_clicks, value, value1, value2, value3, value4):
         df['Uniform'] = np.where(df['Home or Away']=='Home', value3, value4)
 
 
-        #df['Time'] = ''
         df['Arrival Time'] = value2
         df['Location Name'] = np.where(df['Location'].isnull(), 'TBD', df['Location'])
-        #df['Location Details'] = 'TBD'
 
-        print(df)
         return df.to_dict(orient = "records")
 
 
