@@ -18,31 +18,31 @@ app.layout = html.Div([
     html.H2(children='Paste in Schedule URL:', style={'textAlign':'left'}),
     dcc.Textarea(
         id='textarea-url',
-        value='',
+        value='https://system.gotsport.com/org_event/events/25417/schedules?group=206801',
         style={'width': '25%', 'height': 50},
     ),
     html.H2(children='Type/Paste Team Name as it Appears in Schedule:', style={'textAlign':'left'}),
     dcc.Textarea(
         id='textarea-team-name',
-        value='',
+        value='Emerald City FC ECFC F12',
         style={'width': '25%', 'height': 50},
     ),
     html.H2(children='Number of Minutes to Arrive Before Start Time:', style={'textAlign':'left'}),
     dcc.Textarea(
         id='textarea-arrival-time',
-        value='',
+        value='45',
         style={'width': '25%', 'height': 50},
     ),
     html.H2(children='Home Uniform Color:', style={'textAlign':'left'}),
     dcc.Textarea(
         id='textarea-home-uniform',
-        value='',
+        value='Blue',
         style={'width': '25%', 'height': 50},
     ),
     html.H2(children='Away Uniform Color:', style={'textAlign':'left'}),
     dcc.Textarea(
         id='textarea-away-uniform',
-        value='',
+        value='White',
         style={'width': '25%', 'height': 50},
     ),
 ]),
@@ -51,7 +51,10 @@ app.layout = html.Div([
     html.Button('Get Schedule Data', id='generate-schedule-button', n_clicks=0, style={'left' : 0}),
     html.Br(),
     html.Br(),
-    dash_table.DataTable(
+    
+    dcc.Loading(
+        id='loading',
+        children=[dash_table.DataTable(
           id="table_infos",
           columns=[{'id': "Date", 'name': "Date"}, {'id': "Name", 'name': "Name"}, {'id': "Time", 'name': "Time"}, 
                    {'id': "Opponent Name", 'name': "Opponent Name"}, 
@@ -63,7 +66,9 @@ app.layout = html.Div([
     style_header={
         'backgroundColor': 'white',
         'fontWeight': 'bold'},
-          export_format="csv"),
+          export_format="csv"),]
+    ),
+    
 
 ]),
 ])
